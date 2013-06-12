@@ -1,0 +1,13 @@
+dnl #
+dnl # Amazon SES integration
+dnl #
+define(`SMART_HOST', `email-smtp.us-east-1.amazonaws.com')dnl
+define(`RELAY_MAILER_ARGS', `TCP $h <%= @port %>')dnl
+define(`confAUTH_MECHANISMS', `LOGIN PLAIN')dnl
+FEATURE(`authinfo', `hash -o /etc/mail/authinfo.db')dnl
+MASQUERADE_AS(`<%= @domain %>')dnl
+FEATURE(masquerade_envelope)dnl
+FEATURE(masquerade_entire_domain)dnl
+dnl #
+dnl # End Amazon SES integration
+dnl #
