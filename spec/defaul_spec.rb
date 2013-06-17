@@ -8,7 +8,7 @@ describe 'sendmail-ses::default' do
 
   it 'exit if username, password and domain are not set' do
     @chef_run.node.set[:sendmail_ses] = {}
-    @chef_run.converge "sendmail-ses::default"
+    @chef_run.converge 'sendmail-ses::default'
     expect(@chef_run).to log('Username, password and domain must be defined in the sendmail_ses attribute hash')
     expect(@chef_run).not_to restart_service('sendmail')
   end
@@ -20,7 +20,7 @@ describe 'sendmail-ses::default' do
         'password' => 'test',
         'domain' => 'test.com'
       }
-      @chef_run.converge "sendmail-ses::default"
+      @chef_run.converge 'sendmail-ses::default'
     end
 
     it 'include m4 and sendmail-cf package' do
@@ -55,7 +55,7 @@ CMD
 
     it 'should add code to ses.cf with domain' do
       expect(@chef_run).to create_file '/usr/share/sendmail-cf/ses/ses.cf'
-      expect(@chef_run).to create_file_with_content('/usr/share/sendmail-cf/ses/ses.cf', "test.com")
+      expect(@chef_run).to create_file_with_content('/usr/share/sendmail-cf/ses/ses.cf', 'test.com')
     end
 
     it 'should make the sendmail.mc writeable' do
@@ -71,7 +71,7 @@ CMD
     end
 
     it 'should notify sendmail to restart' do
-      @chef_run.execute('sendmail_read_only').should notify("service[ses_sendmail]", :restart)
+      @chef_run.execute('sendmail_read_only').should notify('service[ses_sendmail]', :restart)
     end
   end
 
@@ -85,13 +85,13 @@ CMD
     end
 
     it 'should use the default port' do
-      @chef_run.converge "sendmail-ses::default"
+      @chef_run.converge 'sendmail-ses::default'
       expect(@chef_run).to create_file_with_content('/usr/share/sendmail-cf/ses/ses.cf', "define(`RELAY_MAILER_ARGS', `TCP $h 25')dnl")
     end
 
     it 'should use the configured port' do
       @chef_run.node.set[:sendmail_ses][:port] = '587'
-      @chef_run.converge "sendmail-ses::default"
+      @chef_run.converge 'sendmail-ses::default'
       expect(@chef_run).to create_file_with_content('/usr/share/sendmail-cf/ses/ses.cf', "define(`RELAY_MAILER_ARGS', `TCP $h 587')dnl")
     end
   end
@@ -106,13 +106,13 @@ CMD
     end
 
     it 'should not send a test email' do
-      @chef_run.converge "sendmail-ses::default"
+      @chef_run.converge 'sendmail-ses::default'
       expect(@chef_run).not_to execute_command("echo 'Subject:test.com_sendmail_test\nThis is a test email using ses.\n' | /usr/sbin/sendmail -f test@test.com test2@test2.com")
     end
 
     it 'should send test email on first run' do
       @chef_run.node.set[:sendmail_ses][:test_email] = 'test2@test2.com'
-      @chef_run.converge "sendmail-ses::default"
+      @chef_run.converge 'sendmail-ses::default'
       expect(@chef_run).to execute_command("echo 'Subject:test.com_sendmail_test\nThis is a test email using ses.\n' | /usr/sbin/sendmail -f test@test.com test2@test2.com")
     end
   end

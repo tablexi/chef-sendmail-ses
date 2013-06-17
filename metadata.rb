@@ -1,9 +1,9 @@
-name             "sendmail-ses"
-maintainer       "TABLE XI"
-maintainer_email "sysadmin@tablexi.com"
-license          "All rights reserved"
-description      "Installs/Configures sendmail-ses"
+name             'sendmail-ses'
+maintainer       'TABLE XI'
+maintainer_email 'sysadmin@tablexi.com'
+license          'All rights reserved'
+description      'Installs/Configures sendmail-ses'
 long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
-version          "0.1.0"
+version          '0.1.0'
 
-system         "amazon"
+system         'amazon'

@@ -25,7 +25,7 @@ if node.attribute? 'sendmail_ses'
       :username => node[:sendmail_ses][:username],
       :password => node[:sendmail_ses][:password]
     )
-    notifies :run, "execute[add_ses_authinfo]", :immediately
+    notifies :run, 'execute[add_ses_authinfo]', :immediately
   end
 
   execute 'add_ses_authinfo' do
@@ -38,7 +38,7 @@ if node.attribute? 'sendmail_ses'
 Connect:email-smtp.us-east-1.amazonaws.com RELAY
 Connect:ses-smtp-prod-335357831.us-east-1.elb.amazonaws.com RELAY
 CMD
-    notifies :run, "execute[add_ses_access]", :immediately
+    notifies :run, 'execute[add_ses_access]', :immediately
   end
 
   execute 'add_ses_access' do
@@ -70,9 +70,9 @@ CMD
       :port => node[:sendmail_ses][:port] || '25',
       :domain => node[:sendmail_ses][:domain]
     )
-    notifies :run, "execute[sendmail_writeable]", :immediately
-    notifies :run, "execute[regenerate_sendmail_cf]", :immediately
-    notifies :run, "execute[sendmail_read_only]", :immediately
+    notifies :run, 'execute[sendmail_writeable]', :immediately
+    notifies :run, 'execute[regenerate_sendmail_cf]', :immediately
+    notifies :run, 'execute[sendmail_read_only]', :immediately
   end
 
   execute 'sendmail_writeable' do
@@ -88,12 +88,12 @@ CMD
   execute 'sendmail_read_only' do
     command 'chmod 644 /etc/mail/sendmail.cf'
     action :nothing
-    notifies :restart, "service[ses_sendmail]", :immediately
+    notifies :restart, 'service[ses_sendmail]', :immediately
   end
 
   service 'ses_sendmail' do
     service_name 'sendmail'
-    notifies :run, "execute[sendmail_test]", :immediately
+    notifies :run, 'execute[sendmail_test]', :immediately
   end
 
   execute 'sendmail_test' do
