@@ -13,11 +13,13 @@ Populate the sendmail attribute and include the default recipe `recipe[sendmail-
 
 # Attributes
 
-* `username` ses username.  REQUIRED
-* `password` ses password.  REQUIRED
-* `domain` domain where email will be sent from.  REQUIRED
-* `port` tcp port. Default is 25
-* `test_email` if you would like a test email sent after configuration is complete.
+* `sendmail_ses` a hash of attributes. REQUIRED
+  * `username` ses username.  REQUIRED
+  * `password` ses password.  REQUIRED
+  * `domain` domain where email will be sent from.  REQUIRED
+  * `port` tcp port. Default is 25
+  * `test_user` SES verified user to send from.  IE <test_user>@<domain>
+  * `test_email` Send a test email to the given address.
 
 # Recipes
 

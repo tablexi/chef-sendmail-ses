@@ -19,6 +19,11 @@ if node.attribute? 'sendmail_ses'
     package p
   end
 
+  execute 'add_ses_authinfo' do
+    command 'makemap hash /etc/mail/authinfo.db < /etc/mail/authinfo.ses'
+    action :nothing
+  end
+
   template '/etc/mail/authinfo.ses' do
     source 'authinfo.ses.erb'
     variables(
@@ -28,8 +33,8 @@ if node.attribute? 'sendmail_ses'
     notifies :run, 'execute[add_ses_authinfo]', :immediately
   end
 
-  execute 'add_ses_authinfo' do
-    command 'makemap hash /etc/mail/authinfo.db < /etc/mail/authinfo.ses'
+  execute 'add_ses_access' do
+    command 'makemap hash /etc/mail/access.db < /etc/mail/access.ses'
     action :nothing
   end
 
@@ -41,27 +46,6 @@ CMD
     notifies :run, 'execute[add_ses_access]', :immediately
   end
 
-  execute 'add_ses_access' do
-    command 'makemap hash /etc/mail/access.db < /etc/mail/access.ses'
-    action :nothing
-  end
-
-  ruby_block 'add_include_to_sendmail_mc' do
-    block do
-      rc = Chef::Util::FileEdit.new('/etc/mail/sendmail.mc')
-      rc.insert_line_after_match(/include(`\/usr\/share\/sendmail-cf\/m4\/cf.m4')dnl/, <<-CMD
-dnl #
-dnl # Amazon SES integration
-dnl #
-include(`/usr/share/sendmail-cf/ses/ses.cf')dnl
-CMD
-      )
-      rc.write_file
-    end
-    not_if { File.exist?('/usr/share/sendmail-cf/ses/ses.cf') }
-    action :nothing
-  end
-
   directory '/usr/share/sendmail-cf/ses'
 
   template '/usr/share/sendmail-cf/ses/ses.cf' do
@@ -70,6 +54,21 @@ CMD
       :port => node[:sendmail_ses][:port] || '25',
       :domain => node[:sendmail_ses][:domain]
     )
+  end
+
+  ruby_block 'add_include_to_sendmail_mc' do
+    block do
+      rc = Chef::Util::FileEdit.new('/etc/mail/sendmail.mc')
+      rc.insert_line_after_match(/cf.m4/, <<-CMD
+dnl #
+dnl # Amazon SES integration
+dnl #
+include(`/usr/share/sendmail-cf/ses/ses.cf')dnl
+CMD
+      )
+      rc.write_file
+    end
+    not_if 'grep ses.cf /etc/mail/sendmail.mc'
     notifies :run, 'execute[sendmail_writeable]', :immediately
     notifies :run, 'execute[regenerate_sendmail_cf]', :immediately
     notifies :run, 'execute[sendmail_read_only]', :immediately
@@ -97,8 +96,9 @@ CMD
   end
 
   execute 'sendmail_test' do
-    command "echo 'Subject:test.com_sendmail_test\nThis is a test email using ses.\n' | /usr/sbin/sendmail -f test@#{node[:sendmail_ses][:domain]} #{node[:sendmail_ses][:test_email]}"
+    command "echo 'Subject:#{node.name}_sendmail_test\nThis is a test email using ses.\n' | /usr/sbin/sendmail -f #{node[:sendmail_ses][:test_user]}@#{node[:sendmail_ses][:domain]} #{node[:sendmail_ses][:test_email]}"
     action :nothing
+    only_if { node[:sendmail_ses][:test_user] }
     only_if { node[:sendmail_ses][:test_email] }
   end
 end
