@@ -1,7 +1,6 @@
 source "http://rubygems.org"
 
 gem 'chef'
-# Berkshelf > 2.0.0 has ignores --skip-dependencies argument
 gem 'berkshelf'
 
 group :dev do
