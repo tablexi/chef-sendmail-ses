@@ -5,6 +5,8 @@ gem 'chef'
 gem 'berkshelf'
 
 group :dev do
+  gem "strainer",
+    '>= 2'
   gem 'foodcritic',
     '~> 1.7.0'
   gem "chefspec",
