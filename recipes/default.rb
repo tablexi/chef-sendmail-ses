@@ -8,11 +8,10 @@
 #
 
 if node.attribute? 'sendmail_ses'
-  unless node[:sendmail_ses][:username] && node[:sendmail_ses][:password] && node[:sendmail_ses][:domain]
-    log 'check username, password, and domain' do
-      level :fatal
-      message 'Username, password and domain must be defined in the sendmail_ses attribute hash'
-    end
+  log 'check username, password, and domain' do
+    level :fatal
+    message 'Username, password and domain must be defined in the sendmail_ses attribute hash'
+    not_if { node[:sendmail_ses][:username] && node[:sendmail_ses][:password] && node[:sendmail_ses][:domain] }
   end
 
   %w(m4 sendmail-cf).each do |p|
