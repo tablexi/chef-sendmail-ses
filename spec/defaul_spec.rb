@@ -1,4 +1,5 @@
 require 'chefspec'
+require 'chefspec/berkshelf'
 
 describe 'sendmail-ses::default' do
   before  do
@@ -63,7 +64,8 @@ CMD
     end
 
     it 'should run add_include_to_sendmail_mc' do
-      expect(@chef_run).to run_ruby_block('add_include_to_sendmail_mc')
+      t = @chef_run.template('/usr/share/sendmail-cf/ses/ses.cf')
+      expect(t).to notify('ruby_block[add_include_to_sendmail_mc]').to(:run)
     end
 
     it 'add_include_to_sendmail_mc should notify sendmail_writeable' do

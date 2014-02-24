@@ -45,17 +45,8 @@ CMD
     notifies :run, 'execute[add_ses_access]', :immediately
   end
 
-  directory '/usr/share/sendmail-cf/ses'
-
-  template '/usr/share/sendmail-cf/ses/ses.cf' do
-    source 'ses.cf.erb'
-    variables(
-      :port => node[:sendmail_ses][:port] || '25',
-      :domain => node[:sendmail_ses][:domain]
-    )
-  end
-
   ruby_block 'add_include_to_sendmail_mc' do
+    action :nothing
     block do
       rc = Chef::Util::FileEdit.new('/etc/mail/sendmail.mc')
       rc.insert_line_after_match(/cf.m4/, <<-CMD
@@ -67,10 +58,20 @@ CMD
       )
       rc.write_file
     end
-    not_if 'grep ses.cf /etc/mail/sendmail.mc'
     notifies :run, 'execute[sendmail_writeable]', :immediately
     notifies :run, 'execute[regenerate_sendmail_cf]', :immediately
     notifies :run, 'execute[sendmail_read_only]', :immediately
+  end
+
+  directory '/usr/share/sendmail-cf/ses'
+
+  template '/usr/share/sendmail-cf/ses/ses.cf' do
+    source 'ses.cf.erb'
+    variables(
+      :port => node[:sendmail_ses][:port] || '25',
+      :domain => node[:sendmail_ses][:domain]
+    )
+    notifies :run, 'ruby_block[add_include_to_sendmail_mc]'
   end
 
   execute 'sendmail_writeable' do
