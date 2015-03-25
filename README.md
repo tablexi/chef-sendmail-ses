@@ -1,6 +1,6 @@
 # sendmail-ses cookbook
 
-Integrates sendmail with Amazon SES.  This cookbooks duplicates this [doc](http://docs.aws.amazon.com/ses/latest/DeveloperGuide/sendmail.html) except rather then adding the configurations directly to the sendmail.mc file.  It is included as a seperate file.
+Integrates sendmail with Amazon SES.  This cookbooks duplicates this [doc](http://docs.aws.amazon.com/ses/latest/DeveloperGuide/sendmail.html) except rather than adding the configurations directly to the sendmail.mc file.  It is included as a seperate file.
 
 # Requirements
 
