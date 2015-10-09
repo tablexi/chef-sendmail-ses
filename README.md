@@ -1,6 +1,6 @@
 # sendmail-ses cookbook
 
-Integrates sendmail with Amazon SES.  This cookbooks duplicates this [doc](http://docs.aws.amazon.com/ses/latest/DeveloperGuide/sendmail.html) except rather than adding the configurations directly to the sendmail.mc file.  It is included as a seperate file.
+Integrates sendmail with Amazon SES.  This cookbooks duplicates this [doc](http://docs.aws.amazon.com/ses/latest/DeveloperGuide/sendmail.html) except rather than adding the configurations directly to the sendmail.mc file.  It is included as a separate file.
 
 # Requirements
 
@@ -21,6 +21,7 @@ Populate the sendmail attribute and include the default recipe `recipe[sendmail-
   * `test_user` SES verified user to send from.  IE <test_user>@<domain>
   * `test_email` Send a test email to the given address.
   * `aws_region` the AWS region to use - default is us-east-1
+
 # Recipes
 
 default - Handles all integration
