@@ -29,3 +29,8 @@ default - Handles all integration
 # Author
 
 Author:: TABLE XI (<sysadmin@tablexi.com>)
+
+# Contributors
+
+- [csimons](https://github.com/csimons)
+- [ianbamforth](http://github.com/ianbamforth)
