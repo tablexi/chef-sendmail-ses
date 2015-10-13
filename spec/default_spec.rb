@@ -3,7 +3,7 @@ require 'chefspec/berkshelf'
 
 describe 'sendmail-ses::default' do
   before do
-    @chef_run = ChefSpec::Runner.new(
+    @chef_run = ChefSpec::ServerRunner.new(
       log_level: :fatal,
       platform: 'amazon',
       version: '2012.09'
