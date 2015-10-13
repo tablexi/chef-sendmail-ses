@@ -12,7 +12,7 @@ describe 'sendmail-ses::default' do
 
   it 'exit if username, password and domain are not set' do
     stub_command('grep ses.cf /etc/mail/sendmail.mc').and_return(true)
-    @chef_run.node.set[:sendmail_ses] = {}
+    @chef_run.node.set['sendmail_ses'] = {}
     @chef_run.converge 'sendmail-ses::default'
     expect(@chef_run).to write_log(
       'Username, password and domain must be defined'
@@ -22,7 +22,7 @@ describe 'sendmail-ses::default' do
 
   context 'basic setup' do
     before do
-      @chef_run.node.set[:sendmail_ses] = {
+      @chef_run.node.set['sendmail_ses'] = {
         'username' => 'test',
         'password' => 'test',
         'domain' => 'test.com'
@@ -112,7 +112,7 @@ CMD
 
   context 'port' do
     before do
-      @chef_run.node.set[:sendmail_ses] = {
+      @chef_run.node.set['sendmail_ses'] = {
         'username' => 'test1',
         'password' => 'test',
         'domain' => 'test.com'
@@ -128,7 +128,7 @@ CMD
     end
 
     it 'should use the configured port' do
-      @chef_run.node.set[:sendmail_ses][:port] = '587'
+      @chef_run.node.set['sendmail_ses']['port'] = '587'
       @chef_run.converge 'sendmail-ses::default'
       expect(@chef_run).to create_template('/usr/share/sendmail-cf/ses/ses.cf')
       expect(@chef_run).to render_file('/usr/share/sendmail-cf/ses/ses.cf')
@@ -138,7 +138,7 @@ CMD
 
   context 'test email' do
     before do
-      @chef_run.node.set[:sendmail_ses] = {
+      @chef_run.node.set['sendmail_ses'] = {
         'username' => 'test1',
         'password' => 'test',
         'domain' => 'test.com'
