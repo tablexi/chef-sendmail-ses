@@ -2,21 +2,27 @@ require 'chefspec'
 require 'chefspec/berkshelf'
 
 describe 'sendmail-ses::default' do
-  before  do
-    @chef_run = ChefSpec::Runner.new(:log_level => :fatal, :platform => 'amazon', :version => '2012.09')
+  before do
+    @chef_run = ChefSpec::ServerRunner.new(
+      log_level: :fatal,
+      platform: 'amazon',
+      version: '2012.09'
+    )
   end
 
   it 'exit if username, password and domain are not set' do
     stub_command('grep ses.cf /etc/mail/sendmail.mc').and_return(true)
-    @chef_run.node.set[:sendmail_ses] = {}
+    @chef_run.node.set['sendmail_ses'] = {}
     @chef_run.converge 'sendmail-ses::default'
-    expect(@chef_run).to write_log('Username, password and domain must be defined in the sendmail_ses attribute hash')
+    expect(@chef_run).to write_log(
+      'Username, password and domain must be defined'
+    )
     expect(@chef_run).not_to restart_service('sendmail')
   end
 
   context 'basic setup' do
     before do
-      @chef_run.node.set[:sendmail_ses] = {
+      @chef_run.node.set['sendmail_ses'] = {
         'username' => 'test',
         'password' => 'test',
         'domain' => 'test.com'
@@ -32,7 +38,8 @@ describe 'sendmail-ses::default' do
 
     it 'create authinfo.ses with content' do
       expect(@chef_run).to create_template('/etc/mail/authinfo.ses')
-      expect(@chef_run).to render_file('/etc/mail/authinfo.ses').with_content('"U:root" "I:test" "P:test" "M:LOGIN"')
+      expect(@chef_run).to render_file('/etc/mail/authinfo.ses')
+        .with_content('"U:root" "I:test" "P:test" "M:LOGIN"')
     end
 
     it 'template authinfo.ses should notify add_ses_authinfo' do
@@ -42,11 +49,12 @@ describe 'sendmail-ses::default' do
 
     it 'create access.ses with content' do
       expect(@chef_run).to create_template('/etc/mail/access.ses')
-      expect(@chef_run).to render_file('/etc/mail/access.ses').with_content(<<-CMD
+      expect(@chef_run).to render_file('/etc/mail/access.ses')
+        .with_content(<<-CMD
 Connect:email-smtp.us-east-1.amazonaws.com RELAY
 Connect:ses-smtp-prod-335357831.us-east-1.elb.amazonaws.com RELAY
 CMD
-)
+                     )
     end
 
     it 'template access.ses should notify add_ses_access' do
@@ -55,17 +63,25 @@ CMD
     end
 
     it 'should create ses directory' do
-      expect(@chef_run).to create_directory('/usr/share/sendmail-cf/ses')
+      expect(@chef_run).to create_directory(
+        '/usr/share/sendmail-cf/ses'
+      )
     end
 
     it 'should add code to ses.cf with domain' do
-      expect(@chef_run).to create_template('/usr/share/sendmail-cf/ses/ses.cf')
-      expect(@chef_run).to render_file('/usr/share/sendmail-cf/ses/ses.cf').with_content('test.com')
+      expect(@chef_run).to create_template(
+        '/usr/share/sendmail-cf/ses/ses.cf'
+      )
+      expect(@chef_run).to render_file(
+        '/usr/share/sendmail-cf/ses/ses.cf'
+      ).with_content('test.com')
     end
 
     it 'should run add_include_to_sendmail_mc' do
       t = @chef_run.template('/usr/share/sendmail-cf/ses/ses.cf')
-      expect(t).to notify('ruby_block[add_include_to_sendmail_mc]').to(:run)
+      expect(t).to notify(
+        'ruby_block[add_include_to_sendmail_mc]'
+      ).to(:run)
     end
 
     it 'add_include_to_sendmail_mc should notify sendmail_writeable' do
@@ -96,7 +112,7 @@ CMD
 
   context 'port' do
     before do
-      @chef_run.node.set[:sendmail_ses] = {
+      @chef_run.node.set['sendmail_ses'] = {
         'username' => 'test1',
         'password' => 'test',
         'domain' => 'test.com'
@@ -107,20 +123,22 @@ CMD
     it 'should use the default port' do
       @chef_run.converge 'sendmail-ses::default'
       expect(@chef_run).to create_template('/usr/share/sendmail-cf/ses/ses.cf')
-      expect(@chef_run).to render_file('/usr/share/sendmail-cf/ses/ses.cf').with_content("define(`RELAY_MAILER_ARGS', `TCP $h 25')dnl")
+      expect(@chef_run).to render_file('/usr/share/sendmail-cf/ses/ses.cf')
+        .with_content("define(`RELAY_MAILER_ARGS', `TCP $h 25')dnl")
     end
 
     it 'should use the configured port' do
-      @chef_run.node.set[:sendmail_ses][:port] = '587'
+      @chef_run.node.set['sendmail_ses']['port'] = '587'
       @chef_run.converge 'sendmail-ses::default'
       expect(@chef_run).to create_template('/usr/share/sendmail-cf/ses/ses.cf')
-      expect(@chef_run).to render_file('/usr/share/sendmail-cf/ses/ses.cf').with_content("define(`RELAY_MAILER_ARGS', `TCP $h 587')dnl")
+      expect(@chef_run).to render_file('/usr/share/sendmail-cf/ses/ses.cf')
+        .with_content("define(`RELAY_MAILER_ARGS', `TCP $h 587')dnl")
     end
   end
 
   context 'test email' do
     before do
-      @chef_run.node.set[:sendmail_ses] = {
+      @chef_run.node.set['sendmail_ses'] = {
         'username' => 'test1',
         'password' => 'test',
         'domain' => 'test.com'
@@ -130,7 +148,7 @@ CMD
 
     it 'should not send a test email' do
       @chef_run.converge 'sendmail-ses::default'
-      expect(@chef_run).not_to run_execute("sendmail_test")
+      expect(@chef_run).not_to run_execute('sendmail_test')
     end
   end
 end

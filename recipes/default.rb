@@ -3,15 +3,17 @@
 # Recipe:: default
 #
 # Copyright (C) 2013 TABLE XI
-# 
+#
 # All rights reserved - Do Not Redistribute
 #
 
 if node.attribute? 'sendmail_ses'
   log 'check username, password, and domain' do
     level :fatal
-    message 'Username, password and domain must be defined in the sendmail_ses attribute hash'
-    not_if { node[:sendmail_ses][:username] && node[:sendmail_ses][:password] && node[:sendmail_ses][:domain] }
+    message 'Username, password and domain must be defined'
+    not_if { node['sendmail_ses']['username'] }
+    not_if { node['sendmail_ses']['password'] }
+    not_if { node['sendmail_ses']['domain'] }
   end
 
   %w(m4 sendmail-cf).each do |p|
@@ -26,9 +28,9 @@ if node.attribute? 'sendmail_ses'
   template '/etc/mail/authinfo.ses' do
     source 'authinfo.ses.erb'
     variables(
-      :username => node[:sendmail_ses][:username],
-      :password => node[:sendmail_ses][:password],
-      :aws_region => node[:sendmail_ses][:aws_region]
+      username: node['sendmail_ses']['username'],
+      password: node['sendmail_ses']['password'],
+      aws_region: node['sendmail_ses']['aws_region']
     )
     notifies :run, 'execute[add_ses_authinfo]', :immediately
   end
@@ -41,7 +43,7 @@ if node.attribute? 'sendmail_ses'
   template '/etc/mail/access.ses' do
     source 'access.ses.erb'
     variables(
-      :aws_region => node[:sendmail_ses][:aws_region]
+      aws_region: node['sendmail_ses']['aws_region']
     )
     notifies :run, 'execute[add_ses_access]', :immediately
   end
@@ -56,7 +58,7 @@ dnl # Amazon SES integration
 dnl #
 include(`/usr/share/sendmail-cf/ses/ses.cf')dnl
 CMD
-      )
+                                )
       rc.write_file
     end
     notifies :run, 'execute[sendmail_writeable]', :immediately
@@ -69,9 +71,9 @@ CMD
   template '/usr/share/sendmail-cf/ses/ses.cf' do
     source 'ses.cf.erb'
     variables(
-      :port => node[:sendmail_ses][:port] || '25',
-      :domain => node[:sendmail_ses][:domain],
-      :aws_region => node[:sendmail_ses][:aws_region]
+      port: node['sendmail_ses']['port'] || '25',
+      domain: node['sendmail_ses']['domain'],
+      aws_region: node['sendmail_ses']['aws_region']
     )
     notifies :run, 'ruby_block[add_include_to_sendmail_mc]'
   end
@@ -98,9 +100,13 @@ CMD
   end
 
   execute 'sendmail_test' do
-    command "echo 'Subject:#{node.name}_sendmail_test\nThis is a test email using ses.\n' | /usr/sbin/sendmail -f #{node[:sendmail_ses][:test_user]}@#{node[:sendmail_ses][:domain]} #{node[:sendmail_ses][:test_email]}"
+    command "echo \
+'Subject:#{node.name}_sendmail_test\nThis is a test email using ses.\n'
+| /usr/sbin/sendmail \
+-f #{node['sendmail_ses']['test_user']}@#{node['sendmail_ses']['domain']} \
+#{node['sendmail_ses']['test_email']}"
     action :nothing
-    only_if { node[:sendmail_ses][:test_user] }
-    only_if { node[:sendmail_ses][:test_email] }
+    only_if { node['sendmail_ses']['test_user'] }
+    only_if { node['sendmail_ses']['test_email'] }
   end
 end

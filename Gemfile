@@ -1,14 +1,26 @@
-source "http://rubygems.org"
+source 'http://rubygems.org'
 
-gem 'chef'
+ruby '2.2.2'
+
 gem 'berkshelf'
 
 group :dev do
-  gem 'foodcritic',
-    '~> 1.7.0'
-  gem "chefspec",
-    :git => "git://github.com/acrmp/chefspec.git"
-  gem "fauxhai"
-  gem 'gherkin',
-    '= 2.11.6' # http://stackoverflow.com/a/15855623
+  gem 'foodcritic'
+  gem 'chefspec'
+  gem 'rubocop'
+end
+
+group :kitchen do
+  gem 'test-kitchen'
+  gem 'chef-zero'
+  gem 'kitchen-vagrant'
+end
+
+group :guard do
+  gem 'guard'
+  gem 'guard-rspec'
+  gem 'guard-foodcritic'
+  gem 'guard-rubocop'
+  gem 'guard-kitchen'
+  gem 'ruby_gntp'
 end
