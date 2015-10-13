@@ -41,7 +41,7 @@ describe 'sendmail-ses::default' do
     end
 
     it 'create access.ses with content' do
-      expect(@chef_run).to create_file('/etc/mail/access.ses')
+      expect(@chef_run).to create_template('/etc/mail/access.ses')
       expect(@chef_run).to render_file('/etc/mail/access.ses').with_content(<<-CMD
 Connect:email-smtp.us-east-1.amazonaws.com RELAY
 Connect:ses-smtp-prod-335357831.us-east-1.elb.amazonaws.com RELAY
@@ -50,8 +50,8 @@ CMD
     end
 
     it 'template access.ses should notify add_ses_access' do
-      f = @chef_run.file('/etc/mail/access.ses')
-      expect(f).to notify('execute[add_ses_access]')
+      t = @chef_run.template('/etc/mail/access.ses')
+      expect(t).to notify('execute[add_ses_access]')
     end
 
     it 'should create ses directory' do

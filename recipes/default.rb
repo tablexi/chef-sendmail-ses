@@ -27,7 +27,8 @@ if node.attribute? 'sendmail_ses'
     source 'authinfo.ses.erb'
     variables(
       :username => node[:sendmail_ses][:username],
-      :password => node[:sendmail_ses][:password]
+      :password => node[:sendmail_ses][:password],
+      :aws_region => node[:sendmail_ses][:aws_region]
     )
     notifies :run, 'execute[add_ses_authinfo]', :immediately
   end
@@ -37,11 +38,11 @@ if node.attribute? 'sendmail_ses'
     action :nothing
   end
 
-  file '/etc/mail/access.ses' do
-    content <<-CMD
-Connect:email-smtp.us-east-1.amazonaws.com RELAY
-Connect:ses-smtp-prod-335357831.us-east-1.elb.amazonaws.com RELAY
-CMD
+  template '/etc/mail/access.ses' do
+    source 'access.ses.erb'
+    variables(
+      :aws_region => node[:sendmail_ses][:aws_region]
+    )
     notifies :run, 'execute[add_ses_access]', :immediately
   end
 
@@ -69,7 +70,8 @@ CMD
     source 'ses.cf.erb'
     variables(
       :port => node[:sendmail_ses][:port] || '25',
-      :domain => node[:sendmail_ses][:domain]
+      :domain => node[:sendmail_ses][:domain],
+      :aws_region => node[:sendmail_ses][:aws_region]
     )
     notifies :run, 'ruby_block[add_include_to_sendmail_mc]'
   end
