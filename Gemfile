@@ -8,6 +8,7 @@ group :dev do
   gem 'foodcritic'
   gem 'chefspec'
   gem 'rubocop'
+  gem 'stove'
 end
 
 group :kitchen do
