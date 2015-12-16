@@ -77,7 +77,9 @@ CMD
     notifies :run, 'execute[sendmail_read_only]', :immediately
   end
 
-  directory '/usr/share/sendmail-cf/ses'
+  directory '/usr/share/sendmail-cf/ses' do
+    recursive true
+  end
 
   template '/usr/share/sendmail-cf/ses/ses.cf' do
     source 'ses.cf.erb'
