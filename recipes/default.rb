@@ -86,7 +86,7 @@ CMD
       domain: node['sendmail_ses']['domain'],
       aws_region: node['sendmail_ses']['aws_region']
     )
-    notifies :run, 'ruby_block[add_include_to_sendmail_mc]'
+    notifies :run, 'ruby_block[add_include_to_sendmail_mc]', :immediately
   end
 
   execute 'sendmail_writeable' do
