@@ -112,7 +112,7 @@ CMD
 
   execute 'sendmail_test' do
     command "echo \
-'Subject:#{node.name}_sendmail_test\nThis is a test email using ses.\n'
+'Subject:#{node.name}_sendmail_test\nThis is a test email using ses.\n' \
 | /usr/sbin/sendmail \
 -f #{node['sendmail_ses']['test_user']}@#{node['sendmail_ses']['domain']} \
 #{node['sendmail_ses']['test_email']}"
