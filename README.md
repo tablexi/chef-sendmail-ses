@@ -22,6 +22,7 @@ Populate the sendmail attribute and include the default recipe `recipe[sendmail-
   * `test_user` SES verified user to send from.  IE <test_user>@<domain>
   * `test_email` Send a test email to the given address.
   * `aws_region` the AWS region to use - default is us-east-1
+  * `ses_cf_path` specifiy the configuration directory path
 
 # Recipes
 
