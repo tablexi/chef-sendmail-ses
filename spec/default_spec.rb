@@ -64,21 +64,21 @@ CMD
 
     it 'should create ses directory' do
       expect(@chef_run).to create_directory(
-        '/usr/share/sendmail-cf/ses'
+        @chef_run.node['sendmail']['ses_cf_path']
       )
     end
 
     it 'should add code to ses.cf with domain' do
       expect(@chef_run).to create_template(
-        '/usr/share/sendmail-cf/ses/ses.cf'
+        "#{@chef_run.node['sendmail']['ses_cf_path']}/ses.cf"
       )
       expect(@chef_run).to render_file(
-        '/usr/share/sendmail-cf/ses/ses.cf'
+        "#{@chef_run.node['sendmail']['ses_cf_path']}/ses.cf"
       ).with_content('test.com')
     end
 
     it 'should run add_include_to_sendmail_mc' do
-      t = @chef_run.template('/usr/share/sendmail-cf/ses/ses.cf')
+      t = @chef_run.template("#{@chef_run.node['sendmail']['ses_cf_path']}/ses.cf")
       expect(t).to notify(
         'ruby_block[add_include_to_sendmail_mc]'
       ).to(:run)
@@ -122,16 +122,16 @@ CMD
 
     it 'should use the default port' do
       @chef_run.converge 'sendmail-ses::default'
-      expect(@chef_run).to create_template('/usr/share/sendmail-cf/ses/ses.cf')
-      expect(@chef_run).to render_file('/usr/share/sendmail-cf/ses/ses.cf')
+      expect(@chef_run).to create_template("#{@chef_run.node['sendmail']['ses_cf_path']}/ses.cf")
+      expect(@chef_run).to render_file("#{@chef_run.node['sendmail']['ses_cf_path']}/ses.cf")
         .with_content("define(`RELAY_MAILER_ARGS', `TCP $h 25')dnl")
     end
 
     it 'should use the configured port' do
       @chef_run.node.set['sendmail_ses']['port'] = '587'
       @chef_run.converge 'sendmail-ses::default'
-      expect(@chef_run).to create_template('/usr/share/sendmail-cf/ses/ses.cf')
-      expect(@chef_run).to render_file('/usr/share/sendmail-cf/ses/ses.cf')
+      expect(@chef_run).to create_template("#{@chef_run.node['sendmail']['ses_cf_path']}/ses.cf")
+      expect(@chef_run).to render_file("#{@chef_run.node['sendmail']['ses_cf_path']}/ses.cf")
         .with_content("define(`RELAY_MAILER_ARGS', `TCP $h 587')dnl")
     end
   end
