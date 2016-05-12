@@ -59,6 +59,12 @@ if node.attribute? 'sendmail_ses'
     notifies :run, 'execute[add_ses_access]', :immediately
   end
 
+  ses_cf_path = node['sendmail']['ses_cf_path']
+
+  directory ses_cf_path do
+    recursive true
+  end
+
   ruby_block 'add_include_to_sendmail_mc' do
     action :nothing
     block do
@@ -67,7 +73,7 @@ if node.attribute? 'sendmail_ses'
 dnl #
 dnl # Amazon SES integration
 dnl #
-include(`/usr/share/sendmail-cf/ses/ses.cf')dnl
+include(`#{ses_cf_path}/ses.cf')dnl
 CMD
                                 )
       rc.write_file
@@ -77,11 +83,7 @@ CMD
     notifies :run, 'execute[sendmail_read_only]', :immediately
   end
 
-  directory '/usr/share/sendmail-cf/ses' do
-    recursive true
-  end
-
-  template '/usr/share/sendmail-cf/ses/ses.cf' do
+  template "#{ses_cf_path}/ses.cf" do
     source 'ses.cf.erb'
     variables(
       port: node['sendmail_ses']['port'] || '25',
