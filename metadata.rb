@@ -4,6 +4,6 @@ maintainer_email 'sysadmin@tablexi.com'
 license 'GNU Public License 3.0'
 description 'Installs/Configures sendmail-ses'
 long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
-version '0.2.1'
+version '0.2.2'
 
 supports 'amazon'
