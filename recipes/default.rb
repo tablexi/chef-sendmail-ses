@@ -77,7 +77,9 @@ CMD
     notifies :run, 'execute[sendmail_read_only]', :immediately
   end
 
-  directory '/usr/share/sendmail-cf/ses'
+  directory '/usr/share/sendmail-cf/ses' do
+    recursive true
+  end
 
   template '/usr/share/sendmail-cf/ses/ses.cf' do
     source 'ses.cf.erb'
@@ -86,7 +88,7 @@ CMD
       domain: node['sendmail_ses']['domain'],
       aws_region: node['sendmail_ses']['aws_region']
     )
-    notifies :run, 'ruby_block[add_include_to_sendmail_mc]'
+    notifies :run, 'ruby_block[add_include_to_sendmail_mc]', :immediately
   end
 
   execute 'sendmail_writeable' do
