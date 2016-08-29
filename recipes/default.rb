@@ -39,10 +39,16 @@ if node.attribute? 'sendmail_ses'
 
 			execute 'create cert' do
 			    command "openssl req -new -out  -keyout #{ node['sendmail_ses']['cert_file'] } -nodes -x509 -days #{ node['sendmail_ses']['cert_frequency'] } -subj \"#{ subject }\""
-				action :run
+				action :run, :immediately
+				notifies :restart, 'service[start stunnel]', :immediately
 			end	
 		end
 		
+		template "/etc/init.d/stunnel" do
+			source 'stunnel.erb'
+			mode '0755'
+			notifies :restart, 'service[start stunnel]', :immediately
+		end	
 	
 		template "/etc/stunnel/stunnel.conf" do
 			source 'stunnel.conf.erb'
@@ -51,13 +57,15 @@ if node.attribute? 'sendmail_ses'
 				secure_port: smtp_port,
 				aws_region: node['sendmail_ses']['aws_region']
 			)
-			notifies :run, 'execute[start stunnel]', :immediately
+			notifies :restart, 'service[start stunnel]', :immediately
 		end	
 	
-		execute 'start stunnel' do
-		    command "stunnel /etc/stunnel/stunnel.conf"
-			action :nothing
-		end	
+		service 'start stunnel' do
+		    service_name 'stunnel'
+		    supports :status => true, :start => true, :stop => true, :restart => true
+		    action [ :enable, :start ]
+  		end
+
 	else
 		smtp_host = "email-smtp.#{ node['sendmail_ses']['aws_region'] }.amazonaws.com"
 		smtp_port = node['sendmail_ses']['port'] || 25

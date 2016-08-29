@@ -1,0 +1,90 @@
+#!/bin/sh
+#
+# /etc/rc.d/init.d/stunnel
+#
+# chkconfig: 2345 95 05
+# Starts the stunnel daemon
+#
+# processname: stunnel
+# config: /etc/sysconfig/stunnel
+# pidfile: /var/run/stunnel.pid
+
+# Source function library.
+. /etc/init.d/functions
+
+exec="/usr/bin/stunnel"
+lockfile="/var/lock/subsys/stunnel"
+
+[ -f /etc/sysconfig/stunnel ] && . /etc/sysconfig/stunnel
+
+RETVAL=0
+#
+#	   See how we were called.
+#
+prog="stunnel"
+start() {
+	# Check if stunnel is already running
+	if [ ! -f $lockfile ]; then
+		echo -n $"Starting $prog: "
+		daemon $exec /etc/stunnel/stunnel.conf
+		RETVAL=$?
+		[ $RETVAL -eq 0 ] && touch $lockfile
+		echo
+	fi
+	return $RETVAL
+}
+stop() {
+    echo -n $"Stopping $prog: "
+	if [ -n "`pidfileofproc $exec`" ]; then
+		killproc $exec
+		RETVAL=3
+	else
+		failure $"Stopping $prog"
+	fi
+	retval=$?
+	echo
+	[ $retval -eq 0 ] && rm -f $lockfile
+	return $RETVAL
+}
+restart() {
+	status_s && stop
+	start
+}
+reload() {
+	restart
+}
+status_s() {
+	status -p /var/run/stunnel.pid $prog
+}
+status_s_q() {
+	status_s >/dev/null 2>&1
+}
+case "$1" in
+	start)
+		status_s_q && exit 0
+		$1
+		;;
+	stop)
+		status_s_q && exit 0
+		$1
+		;;
+	restart)
+		$1
+		;;
+	stop)
+		status_s_q && exit 7
+		$1
+		;;
+	condrestart)
+		status_s_q && exit 0
+		restart
+		;;
+	status)
+		status_s
+		;;
+	*)
+		echo $"Usage: $0 {start|stop|restart|condrestart|status}"
+		exit 1
+esac
+exit $?
+exit $RETVAL
