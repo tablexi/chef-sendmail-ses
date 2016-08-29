@@ -27,13 +27,13 @@ if node.attribute? 'sendmail_ses'
     not_if { node['sendmail_ses']['domain'] }
   end
 
-	if node['sendmail_ses']['secure_tunnel'] do
+	if node['sendmail_ses']['secure_tunnel'] 
 		package 'stunnel'
 		frequency = 86400 * node['sendmail_ses']['cert_frequency']
-		smtp_host = '127.0.0.1'
+		smtp_host = 'localhost'
 		smtp_port = node['sendmail_ses']['secure_port'] || 2525
 
-		unless File.exist?("#{ node['sendmail_ses']['cert_file'] }") && File.mtime("#{ node['sendmail_ses']['cert_file'] }") > Time.now - frequency do
+		unless File.exist?("#{ node['sendmail_ses']['cert_file'] }") && File.mtime("#{ node['sendmail_ses']['cert_file'] }") > Time.now - frequency 
 
  			subject = "/C=#{ node['sendmail_ses']['subject_c'] }/ST=#{ node['sendmail_ses']['subject_st'] }/L=#{ node['sendmail_ses']['subject_l'] }/O=#{ node['sendmail_ses']['subject_o'] }/OU=#{ node['sendmail_ses']['subject_ou'] }/CN=#{ node['sendmail_ses']['subject_cn'] }" 
 
@@ -45,7 +45,7 @@ if node.attribute? 'sendmail_ses'
 		
 	
 		template "/etc/stunnel/stunnel.conf" do
-			source 'stunnel.cf.erb'
+			source 'stunnel.conf.erb'
 			variables(
 				port: node['sendmail_ses']['port'] || '465',
 				secure_port: smtp_port,

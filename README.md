@@ -27,12 +27,12 @@ Populate the sendmail attribute and include the default recipe `recipe[sendmail-
   * `secure_port` secure port - default 2525
   * `cert_file` cert file for secure tunnel- default /etc/stunnel/mail.pem
   * `cert_frequency` frequency to replace cert in days - default 365
-  * `subject_c`] country to us for cert
-  * `subject_st`] state to use for cert
-  * `subject_l`] location to use for cert
-  * `subject_o`] organization to use for cert
-  * `subject_ou`] organization unit to use for cert
-  * `subject_cn`] common name to use for cert 
+  * `subject_c` country to us for cert
+  * `subject_st` state to use for cert
+  * `subject_l` location to use for cert
+  * `subject_o` organization to use for cert
+  * `subject_ou` organization unit to use for cert
+  * `subject_cn` common name to use for cert 
 
 # Recipes
 
