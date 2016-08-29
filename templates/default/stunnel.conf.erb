@@ -1,0 +1,5 @@
+[smtp-tls-wrapper]
+accept = <%= @secure_port %>
+client = yes
+connect = email-smtp.<%= @aws_region %>.amazonaws.com:<%= @port %>
+delay = yes

@@ -27,6 +27,50 @@ if node.attribute? 'sendmail_ses'
     not_if { node['sendmail_ses']['domain'] }
   end
 
+	if node['sendmail_ses']['secure_tunnel'] 
+		package 'stunnel'
+		frequency = 86400 * node['sendmail_ses']['cert_frequency']
+		smtp_host = 'localhost'
+		smtp_port = node['sendmail_ses']['secure_port'] || 2525
+
+		unless File.exist?("#{ node['sendmail_ses']['cert_file'] }") && File.mtime("#{ node['sendmail_ses']['cert_file'] }") > Time.now - frequency 
+
+ 			subject = "/C=#{ node['sendmail_ses']['subject_c'] }/ST=#{ node['sendmail_ses']['subject_st'] }/L=#{ node['sendmail_ses']['subject_l'] }/O=#{ node['sendmail_ses']['subject_o'] }/OU=#{ node['sendmail_ses']['subject_ou'] }/CN=#{ node['sendmail_ses']['subject_cn'] }" 
+
+			execute 'create cert' do
+			    command "openssl req -new -out  -keyout #{ node['sendmail_ses']['cert_file'] } -nodes -x509 -days #{ node['sendmail_ses']['cert_frequency'] } -subj \"#{ subject }\""
+				action :run, :immediately
+				notifies :restart, 'service[stunnel]', :immediately
+			end	
+		end
+		
+		template "/etc/init.d/stunnel" do
+			source 'stunnel.erb'
+			mode '0755'
+			notifies :restart, 'service[stunnel]', :immediately
+		end	
+	
+		template "/etc/stunnel/stunnel.conf" do
+			source 'stunnel.conf.erb'
+			variables(
+				port: node['sendmail_ses']['port'] || '465',
+				secure_port: smtp_port,
+				aws_region: node['sendmail_ses']['aws_region']
+			)
+			notifies :restart, 'service[stunnel]', :immediately
+		end	
+	
+		service 'stunnel' do
+		    service_name 'stunnel'
+		    supports :status => true, :start => true, :stop => true, :restart => true
+		    action [ :enable, :start ]
+  		end
+
+	else
+		smtp_host = "email-smtp.#{ node['sendmail_ses']['aws_region'] }.amazonaws.com"
+		smtp_port = node['sendmail_ses']['port'] || 25
+	end
+
   %w(m4 sendmail-cf).each do |p|
     package p
   end
@@ -41,7 +85,7 @@ if node.attribute? 'sendmail_ses'
     variables(
       username: node['sendmail_ses']['username'],
       password: node['sendmail_ses']['password'],
-      aws_region: node['sendmail_ses']['aws_region']
+      host: smtp_host
     )
     notifies :run, 'execute[add_ses_authinfo]', :immediately
   end
@@ -54,7 +98,7 @@ if node.attribute? 'sendmail_ses'
   template '/etc/mail/access.ses' do
     source 'access.ses.erb'
     variables(
-      aws_region: node['sendmail_ses']['aws_region']
+      host: smtp_host
     )
     notifies :run, 'execute[add_ses_access]', :immediately
   end
@@ -86,9 +130,9 @@ CMD
   template "#{ses_cf_path}/ses.cf" do
     source 'ses.cf.erb'
     variables(
-      port: node['sendmail_ses']['port'] || '25',
+      port: smtp_port,
       domain: node['sendmail_ses']['domain'],
-      aws_region: node['sendmail_ses']['aws_region']
+      host: smtp_host
     )
     notifies :run, 'ruby_block[add_include_to_sendmail_mc]', :immediately
   end
