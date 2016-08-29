@@ -40,14 +40,14 @@ if node.attribute? 'sendmail_ses'
 			execute 'create cert' do
 			    command "openssl req -new -out  -keyout #{ node['sendmail_ses']['cert_file'] } -nodes -x509 -days #{ node['sendmail_ses']['cert_frequency'] } -subj \"#{ subject }\""
 				action :run, :immediately
-				notifies :restart, 'service[start stunnel]', :immediately
+				notifies :restart, 'service[stunnel]', :immediately
 			end	
 		end
 		
 		template "/etc/init.d/stunnel" do
 			source 'stunnel.erb'
 			mode '0755'
-			notifies :restart, 'service[start stunnel]', :immediately
+			notifies :restart, 'service[stunnel]', :immediately
 		end	
 	
 		template "/etc/stunnel/stunnel.conf" do
@@ -57,10 +57,10 @@ if node.attribute? 'sendmail_ses'
 				secure_port: smtp_port,
 				aws_region: node['sendmail_ses']['aws_region']
 			)
-			notifies :restart, 'service[start stunnel]', :immediately
+			notifies :restart, 'service[stunnel]', :immediately
 		end	
 	
-		service 'start stunnel' do
+		service 'stunnel' do
 		    service_name 'stunnel'
 		    supports :status => true, :start => true, :stop => true, :restart => true
 		    action [ :enable, :start ]
