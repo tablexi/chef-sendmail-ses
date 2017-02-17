@@ -16,12 +16,16 @@ describe 'sendmail-ses::default' do
     stub_command('grep ses.cf /etc/mail/sendmail.mc').and_return(true)
     chef_run.node.set['sendmail_ses'] = {}
     chef_run.converge described_recipe
+
+    ses_cf_path = chef_run.node['sendmail']['ses_cf_path']
+
     expect(chef_run).not_to create_template('/etc/mail/authinfo.ses')
     expect(chef_run).not_to create_template('/etc/mail/access.ses')
-    expect(chef_run).not_to create_directory(chef_run.node['sendmail']['ses_cf_path'])
-    expect(chef_run).not_to create_template("#{chef_run.node['sendmail']['ses_cf_path']}/ses.cf")
-    template = chef_run.template("#{chef_run.node['sendmail']['ses_cf_path']}/ses.cf")
-    expect(template).not_to notify('execute[sendmail_test]').to(:run).immediately
+    expect(chef_run).not_to create_directory(ses_cf_path)
+    expect(chef_run).not_to create_template("#{ses_cf_path}/ses.cf")
+    template = chef_run.template("#{ses_cf_path}/ses.cf")
+    expect(template)
+      .not_to notify('execute[sendmail_test]').to(:run).immediately
   end
 
   context 'basic setup' do
