@@ -1,10 +1,20 @@
+machine:
+  services:
+    - docker
+
+dependencies:
+  override:
+    - docker info
+    - sudo pip install --upgrade docker-compose
+    - docker-compose pull
+
 database:
   override:
     - echo "No database necessary."
 
 test:
   override:
-    - bundle exec berks install
-    - bundle exec rubocop
-    - bundle exec foodcritic .
-    - bundle exec rspec
+    - docker-compose run berks
+    - docker-compose run foodcritic
+    - docker-compose run rubocop
+    - docker-compose run rspec
