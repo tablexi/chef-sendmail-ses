@@ -9,7 +9,7 @@ machine:
 dependencies:
   override:
     - docker info
-    - docker-compose pull
+    - docker-compose build
 
 database:
   override:
