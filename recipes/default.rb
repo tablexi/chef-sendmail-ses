@@ -18,14 +18,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-if node.attribute? 'sendmail_ses'
-  log 'check username, password, and domain' do
-    level :fatal
-    message 'Username, password and domain must be defined'
-    not_if { node['sendmail_ses']['username'] }
-    not_if { node['sendmail_ses']['password'] }
-    not_if { node['sendmail_ses']['domain'] }
-  end
+if node['sendmail_ses'].attribute?('username') &&
+   node['sendmail_ses'].attribute?('password') &&
+   node['sendmail_ses'].attribute?('domain')
 
   %w(m4 sendmail-cf).each do |p|
     package p
