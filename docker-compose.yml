@@ -1,0 +1,24 @@
+app:
+  build: .
+  volumes:
+    - $PWD:/src
+berks:
+  build: .
+  command: berks
+  volumes:
+    - $PWD:/src
+foodcritic:
+  build: .
+  command: foodcritic -f any .
+  volumes:
+    - $PWD:/src
+rspec:
+  build: .
+  command: rspec
+  volumes:
+    - $PWD:/src
+rubocop:
+  build: .
+  command: rubocop
+  volumes:
+    - $PWD:/src

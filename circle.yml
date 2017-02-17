@@ -1,10 +1,23 @@
+machine:
+  pre:
+    - curl -sSL https://s3.amazonaws.com/circle-downloads/install-circleci-docker.sh | bash -s -- 1.10.0
+    - sudo pip install
+    - sudo pip install docker-compose
+  services:
+    - docker
+
+dependencies:
+  override:
+    - docker info
+    - docker-compose build
+
 database:
   override:
     - echo "No database necessary."
 
 test:
   override:
-    - bundle exec berks install
-    - bundle exec rubocop
-    - bundle exec foodcritic .
-    - bundle exec rspec
+    - docker-compose run berks
+    - docker-compose run foodcritic
+    - docker-compose run rubocop
+    - docker-compose run rspec
