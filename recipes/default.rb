@@ -33,6 +33,7 @@ if node['sendmail_ses'].attribute?('username') &&
 
   template '/etc/mail/authinfo.ses' do
     source 'authinfo.ses.erb'
+    sensitive true
     variables(
       username: node['sendmail_ses']['username'],
       password: node['sendmail_ses']['password'],
