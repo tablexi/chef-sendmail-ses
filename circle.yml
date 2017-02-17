@@ -10,7 +10,6 @@ dependencies:
   override:
     - docker info
     - docker-compose pull
-    - docker-compose build --rm=false
 
 database:
   override:
@@ -18,7 +17,7 @@ database:
 
 test:
   override:
-    - docker-compose run --rm=false berks
-    - docker-compose run --rm=false foodcritic -f any .
-    - docker-compose run --rm=false rubocop
-    - docker-compose run --rm=false rspec
+    - docker-compose run berks
+    - docker-compose run foodcritic
+    - docker-compose run rubocop
+    - docker-compose run rspec

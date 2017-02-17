@@ -4,21 +4,21 @@ app:
     - $PWD:/src
 berks:
   build: .
-  entrypoint: berks
+  command: berks
   volumes:
     - $PWD:/src
 foodcritic:
   build: .
-  entrypoint: foodcritic
+  command: foodcritic -f any .
   volumes:
     - $PWD:/src
 rspec:
   build: .
-  entrypoint: rspec
+  command: rspec
   volumes:
     - $PWD:/src
 rubocop:
   build: .
-  entrypoint: rubocop
+  command: rubocop
   volumes:
     - $PWD:/src
