@@ -1,0 +1,24 @@
+app:
+  build: .
+  volumes:
+    - $PWD:/src
+berks:
+  build: .
+  entrypoint: berks
+  volumes:
+    - $PWD:/src
+foodcritic:
+  build: .
+  entrypoint: foodcritic
+  volumes:
+    - $PWD:/src
+rspec:
+  build: .
+  entrypoint: rspec
+  volumes:
+    - $PWD:/src
+rubocop:
+  build: .
+  entrypoint: rubocop
+  volumes:
+    - $PWD:/src
