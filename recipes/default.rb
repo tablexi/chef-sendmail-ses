@@ -22,7 +22,7 @@ if node['sendmail_ses'].attribute?('username') &&
    node['sendmail_ses'].attribute?('password') &&
    node['sendmail_ses'].attribute?('domain')
 
-  %w(m4 sendmail-cf).each do |p|
+  %w[m4 sendmail-cf].each do |p|
     package p
   end
 
