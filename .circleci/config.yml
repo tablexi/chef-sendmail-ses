@@ -1,0 +1,120 @@
+version: 2
+
+defaults:
+  env_setup: &env_setup
+    docker:
+      - image: ruby:2.5.0
+
+  bundle_cache_name: &bundle_cache_name
+    bundler-cache-v2-{{ checksum "Gemfile.lock" }}
+
+  install_bundle: &install_bundle
+    run:
+      name: Bundle install
+      command: bundle install --path ~/bundle
+
+  restore_bundle: &restore_bundle
+    restore_cache:
+      key: *bundle_cache_name
+
+jobs:
+  build:
+    <<: *env_setup
+    steps:
+      - checkout
+      - *restore_bundle
+      - *install_bundle
+      - save_cache:
+          key: *bundle_cache_name
+          paths:
+            - ~/bundle
+
+  test:
+    <<: *env_setup
+    steps:
+      - checkout
+      - *restore_bundle
+      - *install_bundle
+      - run:
+          name: Berks install
+          command: bundle exec berks install
+      - run:
+          name: Test rubocop
+          command: bundle exec rubocop
+      - run:
+          name: Test foodcritic
+          command: bundle exec foodcritic .
+      - run:
+          name: Test rspec
+          command: bundle exec rspec
+
+  version_and_changelog_update:
+    <<: *env_setup
+    steps:
+      - checkout
+      - *restore_bundle
+      - *install_bundle
+      - run:
+          name: setup git for push
+          command: |
+            git push --set-upstream origin ${CIRCLE_BRANCH}
+            git config --global user.email "ci@tablexi.com"
+            git config --global user.name "CircleCI"
+      - run:
+          name: bump version
+          command: bundle exec bump patch --tag --no-bundle
+      - deploy:
+          name: push version to github
+          command: |
+            git push origin --tags
+      - run:
+          name: update changelog
+          command: bundle exec github_changelog_generator
+      - deploy:
+          name: push changelog to github
+          command: |
+            VERSION=`git describe --tags`
+            git add CHANGELOG.md
+            git commit --amend --no-edit
+            git push origin :$VERSION
+            git tag -f $VERSION
+            git push origin --tags
+            git push origin --force-with-lease
+
+workflows:
+  version: 2
+  test_and_bump:
+    jobs:
+      - build:
+          filters:
+            tags:
+              ignore:
+                - /^v[0-9].*/
+      - test:
+          requires:
+            - build
+          filters:
+            tags:
+              ignore:
+                - /^v[0-9].*/
+      - hold:
+          type: approval
+          requires:
+            - test
+          filters:
+            branches:
+              only:
+                - master
+            tags:
+              ignore:
+                - /^v[0-9].*/
+      - version_and_changelog_update:
+          requires:
+            - hold
+          filters:
+            branches:
+              only:
+                - master
+            tags:
+              ignore:
+                - /^v[0-9].*/
