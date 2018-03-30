@@ -13,5 +13,4 @@ bin/*
 .bundle/*
 
 # RVM
-.ruby-version
 .ruby-gemset
