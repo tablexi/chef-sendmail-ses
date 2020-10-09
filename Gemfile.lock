@@ -47,7 +47,7 @@ GEM
     buff-shell_out (1.1.0)
       buff-ruby_engine (~> 1.0)
     builder (3.2.3)
-    bump (0.8.0)
+    bump (0.10.0)
     celluloid (0.16.0)
       timers (~> 4.0.0)
     celluloid-io (0.16.2)
