@@ -1,0 +1,30 @@
+version: 2
+updates:
+- package-ecosystem: bundler
+  directory: "/"
+  schedule:
+    interval: daily
+    time: "23:00"
+    timezone: America/Chicago
+  pull-request-branch-name:
+    separator: "-"
+  open-pull-requests-limit: 99
+  ignore:
+  - dependency-name: excon
+    versions:
+    - 0.78.1
+    - 0.79.0
+    - 0.80.1
+  - dependency-name: nokogiri
+    versions:
+    - 1.11.1
+    - 1.11.2
+  - dependency-name: activesupport
+    versions:
+    - 6.1.1
+    - 6.1.2
+    - 6.1.2.1
+    - 6.1.3
+  - dependency-name: kitchen-ec2
+    versions:
+    - 3.8.0
